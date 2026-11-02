@@ -1,0 +1,31 @@
+name: Build BlockStart Launcher
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore BlockStartLauncher.csproj
+
+      - name: Publish Windows executable
+        run: dotnet publish BlockStartLauncher.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o publish
+
+      - name: Upload launcher
+        uses: actions/upload-artifact@v4
+        with:
+          name: BlockStartLauncher-Windows-x64
+          path: publish/
